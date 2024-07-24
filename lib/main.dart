@@ -16,10 +16,9 @@ void main() async {
   await _checkPermissions();
   if (Platform.isAndroid) {
     //initAndroidBLE();
-  } else {
-    MethodChannel channel = const MethodChannel('ble_medsenser_channel');
-    channel.setMethodCallHandler(_swiftSignal);
-  }
+  } else {}
+  MethodChannel channel = const MethodChannel('ble_medsenser_channel');
+  channel.setMethodCallHandler(_swiftSignal);
 
   runApp(const MedsenserGateApp());
 }
@@ -147,13 +146,16 @@ Future<dynamic> _swiftSignal(MethodCall call) async {
   switch (call.method) {
     case 'ble_notification':
       final Map arguments = call.arguments;
+      // Gelen verileri yazdır
+      print('Arguments: $arguments');
       int deviceId = ((arguments['ManufData'][4] as int) << 16) |
           ((arguments['ManufData'][3] as int) << 8) |
           (arguments['ManufData'][2] as int);
       int measuredTemperature = ((arguments['ManufData'][6] as int) << 8) |
           (arguments['ManufData'][5] as int);
+      print('Measured Temperature: $measuredTemperature');
       int batteryLevel = ((arguments['ManufData'][7] as int));
-
+      print(((arguments['ManufData'][8] as int)));
       BleBeamData beamData = BleBeamData(
           deviceId: deviceId,
           measuredTemperature: (measuredTemperature * 0.0078125),

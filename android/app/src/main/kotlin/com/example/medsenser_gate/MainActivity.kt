@@ -18,15 +18,18 @@ import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 import java.nio.ByteBuffer
 import java.util.UUID
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.Result
 
 
 val REQUIRED_PERMISSIONS = arrayOf(
     Manifest.permission.FOREGROUND_SERVICE,
     Manifest.permission.ACCESS_FINE_LOCATION
 )
-
+private val CHANNEL = "ble_medsenser_channel"
 class MainActivity : FlutterActivity() {
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var bleScanner: BluetoothLeScanner
@@ -34,6 +37,10 @@ class MainActivity : FlutterActivity() {
     private val beaconUuid = UUID.fromString("ba0fd034-9e5b-0d8b-534b-e22a6fac6bfd") // Buraya beacon UUID'sini ekleyin
     private val beaconUuid2 = UUID.fromString("fd6bac6f-2ae2-4b53-8b0d-5b9e34d00fba") // Buraya beacon UUID'sini ekleyin
 
+    companion object {
+        lateinit var channelProxy: MethodChannel
+        lateinit var flutterEngineProxy: FlutterEngine
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +115,20 @@ class MainActivity : FlutterActivity() {
         }, 10000)
         */
     }
+
+
+
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        flutterEngineProxy = flutterEngine;
+        channelProxy=channel;
+
+    }
+
+
 
     private fun StartForegroundService(): Boolean {
         if (ActivityCompat.checkSelfPermission(

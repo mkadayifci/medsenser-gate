@@ -7,12 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import android.util.SparseArray
 import androidx.annotation.RequiresApi
+import io.flutter.plugin.common.MethodChannel.Result
 
 class BleScanReceiver : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onReceive(context: Context?, intent: Intent?) {
-        //Log.d("BleScanReceiver", "CALLLLLLLLL")
+        Log.d("BleScanReceiver", "CALLLLLLLLL")
         //Log.d("BleScanReceiver",  intent?.action.toString())
 
         //logIntentExtras(intent)
@@ -20,9 +22,38 @@ class BleScanReceiver : BroadcastReceiver() {
           //  logIntentExtras(intent)
             val results: List<ScanResult>? = intent.getParcelableArrayListExtra("android.bluetooth.le.extra.LIST_SCAN_RESULT" )
             results?.forEach {
+
                 Log.d("BleScanReceiver", "BLE cihazı bulundu: ${it.device.address}")
+                val mapData = convertSparseArrayToMap(it.scanRecord?.manufacturerSpecificData)
+                MainActivity.channelProxy.invokeMethod("ble_notification", mapData, object : Result {
+                    override fun success(result: Any?) {
+                        if (result is String) {
+                            println(result)
+                        }
+                    }
+
+                    override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                        println("Error: $errorCode, $errorMessage")
+                    }
+
+                    override fun notImplemented() {
+                        println("Not implemented")
+                    }
+                })
+
             }
         }
+    }
+
+
+    fun convertSparseArrayToMap(sparseArray: SparseArray<ByteArray>?): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        if (sparseArray != null) {
+            for (i in 0 until sparseArray.size()) {
+                map["ManufData"] = sparseArray.valueAt(i)
+            }
+        }
+        return map
     }
 
     fun logIntentExtras(intent: Intent?) {
