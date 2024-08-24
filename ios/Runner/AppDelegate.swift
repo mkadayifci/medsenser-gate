@@ -10,6 +10,7 @@ import CoreBluetooth
     @objc func centralManagerDidUpdateState(_ central: CBCentralManager) {
            if central.state == .poweredOn {
                let serviceUUID = CBUUID(string: "BA0FD034-9E5B-0D8B-534B-E22A6FAC6BFD")
+               
                central.scanForPeripherals(withServices:  [serviceUUID], options: nil)
            } else {
                print("Bluetooth is not available.")
@@ -18,8 +19,7 @@ import CoreBluetooth
        
     @objc(centralManager:didDiscoverPeripheral:advertisementData:RSSI:) func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
            // Burada reklam verilerini kontrol edebilir ve özel reklam verilerinizi filtreleyebilirsiniz.
-        print("discovered")
-        if(1==1){
+ 
             print("Discovered peripheral")//: \(peripheral) with advertisementData: \(advertisementData)")
             let serviceUUID = CBUUID(string: "BA0FD034-9E5B-0D8B-534B-E22A6FAC6BFD")
             let scanOptions = [CBCentralManagerScanOptionAllowDuplicatesKey: true]
@@ -30,14 +30,26 @@ import CoreBluetooth
             // For invoking flutter method from Swift
             let channel = FlutterMethodChannel(name: "ble_medsenser_channel", binaryMessenger: controller.binaryMessenger)
             
-            let data = ["ManufData":advertisementData["kCBAdvDataManufacturerData"]]
+   
 
-            print("RSSI: \(RSSI)")
-            channel.invokeMethod("ble_notification", arguments:data) { (result) in
-                if let resultString = result as? String {
-                    print(resultString)
+            
+            
+            let manufacturerData = advertisementData["kCBAdvDataManufacturerData"] as? Data
+            
+                let data = ["ManufData": manufacturerData?.dropFirst(2)]
+                // Burada 'data' değişkenini kullanabilirsiniz
+                
+                channel.invokeMethod("advertisement_received", arguments:data) { (result) in
+                    if let resultString = result as? String {
+                        print(resultString)
+                    }
                 }
-            }
+            
+            
+            
+            
+            //let data = ["ManufData":Array((advertisementData["kCBAdvDataManufacturerData"] as? [UInt8])?.dropFirst(2))]
+
 
             
             print(advertisementData)
@@ -75,7 +87,7 @@ import CoreBluetooth
         central.scanForPeripherals(withServices: [serviceUUID], options: nil)
         //central.scanForPeripherals(withServices: nil, options: nil)
         
-        }
+        
    
        }
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {

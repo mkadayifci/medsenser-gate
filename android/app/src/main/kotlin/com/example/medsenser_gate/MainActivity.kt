@@ -40,6 +40,10 @@ class MainActivity : FlutterActivity() {
     companion object {
         lateinit var channelProxy: MethodChannel
         lateinit var flutterEngineProxy: FlutterEngine
+
+        fun checkInitialization() : Boolean{
+            return ::channelProxy.isInitialized
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,10 +83,11 @@ class MainActivity : FlutterActivity() {
         val scanSettings = ScanSettings.Builder()
 
             //.setLegacy(false)
-
+            .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE, )
+            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
             .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-            .setReportDelay(20000)
-            //.setPhy(ScanSettings.PHY_LE_ALL_SUPPORTED)
+            .setReportDelay(30000)
+            .setPhy(ScanSettings.PHY_LE_ALL_SUPPORTED)
             .build()
         if (ActivityCompat.checkSelfPermission(
                 this,

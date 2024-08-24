@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:medsenser_gate/models/ble_beam_data.dart';
-import 'package:medsenser_gate/screens/landing/landing_screen.dart';
+import 'package:medsenser_gate/screens/debug_chart.dart';
 import 'package:medsenser_gate/screens/tabview_main.dart';
-import 'package:medsenser_gate/services/beam_processor_service.dart';
+import 'package:medsenser_gate/services/beam_processor.dart';
+import 'package:medsenser_gate/services/native_comm_channel.dart';
 import 'package:medsenser_gate/services/state_manager_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -17,10 +15,15 @@ void main() async {
   if (Platform.isAndroid) {
     //initAndroidBLE();
   } else {}
-  MethodChannel channel = const MethodChannel('ble_medsenser_channel');
-  channel.setMethodCallHandler(_swiftSignal);
 
   runApp(const MedsenserGateApp());
+
+  NativeCommChannel().registerChannel();
+  NativeCommChannel().advertisementReceived.stream.listen((receivedPackage) {
+
+
+    BeamProcessor().addNewBeamData(receivedPackage);
+  });
 }
 
 Future<void> _checkPermissions() async {
@@ -97,16 +100,6 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
     super.initState();
     _checkPermissions();
     StateManagerService.state.initState();
-
-    // final regions = <Region>[];
-
-    // // Android platform, it can ranging out of beacon that filter all of Proximity UUID
-    // regions.add(Region(identifier: 'BA0FD034-9E5B-0D8B-534B-E22A6FAC6BFD'));
-    // // to start monitoring beacons
-    // _streamMonitoring =
-    //     flutterBeacon.monitoring(regions).listen((MonitoringResult result) {
-    //   print("MAJORRRRR: " + result.region.major.toString());
-    // });
   }
 
   // This widget is the root of your application.
@@ -127,7 +120,11 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
               if (snapshot.connectionState == ConnectionState.active) {
                 bool needsLandingPage = snapshot.data ?? true;
                 if (needsLandingPage) {
-                  return LandingScreen();
+                  //return DebugScreen(); // LandingScreen();
+                 
+                  return DebugChart();
+     
+    
                 } else {
                   return TabViewMainScreen();
                 }
@@ -139,34 +136,5 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
                 );
               }
             }));
-  }
-}
-
-Future<dynamic> _swiftSignal(MethodCall call) async {
-  switch (call.method) {
-    case 'ble_notification':
-      final Map arguments = call.arguments;
-      // Gelen verileri yazdır
-      print('Arguments: $arguments');
-      int deviceId = ((arguments['ManufData'][4] as int) << 16) |
-          ((arguments['ManufData'][3] as int) << 8) |
-          (arguments['ManufData'][2] as int);
-      int measuredTemperature = ((arguments['ManufData'][6] as int) << 8) |
-          (arguments['ManufData'][5] as int);
-      print('Measured Temperature: $measuredTemperature');
-      int batteryLevel = ((arguments['ManufData'][7] as int));
-      print(((arguments['ManufData'][8] as int)));
-      BleBeamData beamData = BleBeamData(
-          deviceId: deviceId,
-          measuredTemperature: (measuredTemperature * 0.0078125),
-          batteryLevel: batteryLevel);
-      BeamProcessorService().addNewBeamData(beamData);
-
-      return true;
-    default:
-      throw PlatformException(
-        code: 'Unimplemented',
-        details: 'Method ${call.method} not implemented',
-      );
   }
 }
