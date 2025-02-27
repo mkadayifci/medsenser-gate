@@ -10,7 +10,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -55,11 +56,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
-        </receiver>-->
+        </receiver>
         <service
             android:name=".ForegroundService"
             android:foregroundServiceType="dataSync"
-            tools:ignore="ForegroundServicePermission" />
+            tools:ignore="ForegroundServicePermission" />-->
+
+        <service
+            android:name=".MedsenserScannerService"
+            android:foregroundServiceType="connectedDevice"
+            android:enabled="true"
+            android:exported="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and

@@ -1,7 +1,13 @@
 class MeasurementNode {
   final DateTime timestamp;
   final double temperatureValue;
-  MeasurementNode({required this.timestamp, required this.temperatureValue});
+  bool isSyncedWithServer;
+
+  MeasurementNode({
+    required this.timestamp, 
+    required this.temperatureValue, 
+    this.isSyncedWithServer = false
+  });
 
   static double convertParcelableTemperature(int parceleableTemperature) 
   {

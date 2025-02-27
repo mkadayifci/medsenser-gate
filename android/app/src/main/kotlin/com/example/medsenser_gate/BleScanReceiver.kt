@@ -1,3 +1,4 @@
+/*
 package com.example.medsenser_gate
 
 import android.bluetooth.BluetoothDevice
@@ -105,8 +106,10 @@ class BleScanReceiver : BroadcastReceiver() {
 
 
 
+*/
 /*
-               */
+               *//*
+
             }
         }
     }
@@ -138,3 +141,4 @@ class BleScanReceiver : BroadcastReceiver() {
 
 }
 
+*/

@@ -26,7 +26,7 @@ class NativeCommChannel {
     switch (call.method) {
       case 'advertisement_received':
         final Map arguments = call.arguments;
-        // Gelen verileri yazdır
+        // Print incoming data
 
         List<int> manufData = arguments['ManufData'] as List<int>;
         print(manufData);

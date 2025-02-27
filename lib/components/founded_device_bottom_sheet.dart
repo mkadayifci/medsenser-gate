@@ -8,7 +8,7 @@ class FoundedDeviceBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 330, // Pencerenin yüksekliği
+      height: 330, // Height of the window
       child: Padding(
         padding:
             const EdgeInsets.only(top: 30, left: 10, bottom: 10, right: 10),
@@ -17,7 +17,7 @@ class FoundedDeviceBottomSheet extends StatelessWidget {
           children: <Widget>[
             const Text(
                 textAlign: TextAlign.center,
-                'Yakında bir ateş ölçer bulundu. Hesabınıza eklemek için dokunun.',
+                'A thermometer was found nearby. Tap to add it to your account.',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal)),
             const SizedBox(
               height: 10,
@@ -59,18 +59,18 @@ class FoundedDeviceBottomSheet extends StatelessWidget {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    // "Default" butonu tıklandığında yapılacaklar
-                    print('Default butonuna tıklandı');
+                    // Actions when "Add" button is clicked
+                    print('Add button clicked');
                   },
-                  child: Text('Ekle'),
+                  child: Text('Add'),
                 ),
-                const SizedBox(width: 20), // Butonlar arası boşluk
+                const SizedBox(width: 20), // Space between buttons
                 TextButton(
                   onPressed: () {
-                    // "İptal" butonu tıklandığında yapılacaklar
-                    Navigator.pop(context); // Pencereyi kapat
+                    // Actions when "Cancel" button is clicked
+                    Navigator.pop(context); // Close the window
                   },
-                  child: Text('İptal'),
+                  child: Text('Cancel'),
                 ),
               ],
             ),

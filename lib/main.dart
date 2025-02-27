@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:medsenser_gate/screens/debug_chart.dart';
+import 'package:medsenser_gate/screens/landing/landing_screen.dart';
 import 'package:medsenser_gate/screens/tabview_main.dart';
 import 'package:medsenser_gate/services/beam_processor.dart';
 import 'package:medsenser_gate/services/native_comm_channel.dart';
@@ -12,22 +13,17 @@ import 'package:permission_handler/permission_handler.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _checkPermissions();
-  if (Platform.isAndroid) {
-    //initAndroidBLE();
-  } else {}
 
   runApp(const MedsenserGateApp());
 
   NativeCommChannel().registerChannel();
-  NativeCommChannel().advertisementReceived.stream.listen((receivedPackage) {
-
-
-    BeamProcessor().addNewBeamData(receivedPackage);
+  NativeCommChannel().advertisementReceived.stream.listen((receivedPackage) async {
+    await BeamProcessor().addNewBeamData(receivedPackage);
   });
 }
 
 Future<void> _checkPermissions() async {
-  if (Platform.isAndroid) {
+
     if (await Permission.bluetooth.isDenied) {
       await Permission.bluetooth.request();
     }
@@ -54,7 +50,7 @@ Future<void> _checkPermissions() async {
       await Permission.notification.request();
     }
 
-    // İzinlerin durumunu kontrol edin ve kullanıcıyı bilgilendirin
+    // Check the status of permissions and inform the user
     Map<Permission, PermissionStatus> statuses = await [
       Permission.bluetooth,
       Permission.bluetoothScan,
@@ -63,6 +59,7 @@ Future<void> _checkPermissions() async {
       Permission.location,
       Permission.backgroundRefresh,
       Permission.notification,
+    
     ].request();
 
     statuses.forEach((permission, status) {
@@ -72,7 +69,7 @@ Future<void> _checkPermissions() async {
         print('$permission granted');
       }
     });
-  }
+  
 }
 
 void initAndroidBLE() async {
@@ -121,7 +118,7 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
                 bool needsLandingPage = snapshot.data ?? true;
                 if (needsLandingPage) {
                   //return DebugScreen(); // LandingScreen();
-                 
+                 //return LandingScreen();
                   return DebugChart();
      
     

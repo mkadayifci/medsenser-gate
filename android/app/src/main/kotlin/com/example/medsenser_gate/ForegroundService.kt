@@ -1,3 +1,4 @@
+/*
 package com.example.medsenser_gate
 
 import android.R
@@ -74,4 +75,4 @@ class ForegroundService : Service() {
 
         getSystemService(NotificationManager::class.java).createNotificationChannel(serviceChannel)
     }
-}
+}*/

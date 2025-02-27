@@ -14,6 +14,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -31,11 +32,13 @@ val REQUIRED_PERMISSIONS = arrayOf(
 )
 private val CHANNEL = "ble_medsenser_channel"
 class MainActivity : FlutterActivity() {
+/*
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var bleScanner: BluetoothLeScanner
     private lateinit var scanResults: MutableList<ScanResult>
     private val beaconUuid = UUID.fromString("ba0fd034-9e5b-0d8b-534b-e22a6fac6bfd") // Buraya beacon UUID'sini ekleyin
     private val beaconUuid2 = UUID.fromString("fd6bac6f-2ae2-4b53-8b0d-5b9e34d00fba") // Buraya beacon UUID'sini ekleyin
+*/
 
     companion object {
         lateinit var channelProxy: MethodChannel
@@ -49,6 +52,12 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 30 saniyelik bir gecikme ile servisi başlat
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = Intent(this, MedsenserScannerService::class.java)
+            startForegroundService(intent)
+        }, 30000) // 3
+/*
         // BluetoothAdapter ve BluetoothLeScanner başlatma
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
@@ -59,7 +68,7 @@ class MainActivity : FlutterActivity() {
         //StartForegroundService()
         Log.d("Scanner","SSSTAARRRRTIIINNNNNGGGG")
         val intent = Intent(this, BleScanReceiver::class.java)
-        intent.setAction("com.example.ACTION_SCAN_RESULT")
+        intent.setAction("com.example.ACTION_SCAN_RESULT")za<
         val pendingIntent =
             PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 
@@ -104,7 +113,7 @@ class MainActivity : FlutterActivity() {
             return
         }
         bleScanner.startScan(filters, scanSettings, pendingIntent)
-        Log.d("Scanner","SSSTAARRRRTEDDDDDD")
+        Log.d("Scanner","SSSTAARRRRTEDDDDDD")*/
         // Tarama işlemini belirli bir süre sonra durdurma ve sonuçları gönderme
         /*        Handler(Looper.getMainLooper()).postDelayed({
                     bleScanner.stopScan(scanCallback)
@@ -152,13 +161,13 @@ class MainActivity : FlutterActivity() {
             return true
         }
 
-        val serviceIntent = Intent(
+  /*      val serviceIntent = Intent(
             this,
             ForegroundService::class.java
         )
         serviceIntent.putExtra("inputExtra", "Foreground Service Example in Android")
 
-        startForegroundService(serviceIntent)
+        startForegroundService(serviceIntent)*/
         return false
     }
 

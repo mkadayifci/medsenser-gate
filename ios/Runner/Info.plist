@@ -58,5 +58,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>ServiceUUID</key>
+	<string>BA0FD034-9E5B-0D8B-534B-E22A6FAC6BFD</string>
 </dict>
 </plist>
