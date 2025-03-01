@@ -34,8 +34,8 @@ class AdvertisementPacket {
     }
     
     // Create an advertisement packet from raw manufacturer data
-    static func fromManufacturerData(_ data: [UInt8]) -> AdvertisementPacket? {
-        guard data.count >= 4 else { return nil }
+    static func fromManufacturerData(_ data: [UInt8]?) -> AdvertisementPacket? {
+        guard let data = data, data.count >= 4 else { return nil }
         
         // Extract device ID from first 3 bytes
         let deviceId = Int(data[0]) << 16 | Int(data[1]) << 8 | Int(data[2])

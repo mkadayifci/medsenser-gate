@@ -14,6 +14,9 @@ class MeasurementNode {
     let timestamp: Date
     let temperatureValue: Double
     
+
+        // Whether this measurement has been synced to server
+    var isSyncedWithServer: Bool = false
     init(timestamp: Date, temperatureValue: Double) {
         self.timestamp = timestamp
         self.temperatureValue = temperatureValue
@@ -29,3 +32,6 @@ class MeasurementNode {
         }
     }
 }
+
+
+

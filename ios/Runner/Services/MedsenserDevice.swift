@@ -45,25 +45,3 @@ class MedsenserDevice {
         return measurements.sorted(by: { $0.timestamp < $1.timestamp })
     }
 }
-
-// Model class for temperature measurement data point
-class MeasurementNode {
-    // Timestamp of the measurement
-    let timestamp: Date
-    
-    // Temperature value in Celsius
-    let temperatureValue: Double
-    
-    // Whether this measurement has been synced to server
-    var isSyncedWithServer: Bool = false
-    
-    init(timestamp: Date, temperatureValue: Double) {
-        self.timestamp = timestamp
-        self.temperatureValue = temperatureValue
-    }
-    
-    // Convert raw temperature value from device to Celsius
-    static func convertParcelableTemperature(_ rawValue: Int) -> Double {
-        return Double(rawValue) / 10.0
-    }
-} 

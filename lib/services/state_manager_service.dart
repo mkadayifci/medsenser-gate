@@ -52,7 +52,7 @@ class StateManagerService {
     }
 
     if (deviceInArray == null) {
-      var newDevice = MedsenserDevice(deviceId: beamData.deviceId);
+      var newDevice = MedsenserDevice(deviceId: beamData.deviceId, lastSeen: DateTime.now());
       devicesInRange.add(newDevice);
       deviceInArray = newDevice;
     }
@@ -70,7 +70,7 @@ class StateManagerService {
     List<MedsenserDevice> registeredDevices = [];
     var registeredRawDevices = await DatabaseService.db.getAllDevices();
     for (var rawDevice in registeredRawDevices) {
-      var deviceToAdd = MedsenserDevice(deviceId: rawDevice["deviceId"]);
+      var deviceToAdd = MedsenserDevice(deviceId: rawDevice["deviceId"], lastSeen: DateTime.fromMillisecondsSinceEpoch(rawDevice["lastSeen"]));
       deviceToAdd.lastSeen =
           DateTime.fromMillisecondsSinceEpoch(rawDevice["lastSeen"]);
 

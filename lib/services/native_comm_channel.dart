@@ -10,6 +10,7 @@ class NativeCommChannel {
   static final NativeCommChannel _singleton = NativeCommChannel._internal();
 
   final List<AdvertisementPacket> _beamDataQueue = [];
+  MethodChannel? _channel;
 
   factory NativeCommChannel() {
     return _singleton;
@@ -18,8 +19,8 @@ class NativeCommChannel {
   NativeCommChannel._internal();
 
   void registerChannel() {
-    MethodChannel channel = const MethodChannel('ble_medsenser_channel');
-    channel.setMethodCallHandler(_channelSignal);
+    _channel = const MethodChannel('ble_medsenser_channel');
+    _channel?.setMethodCallHandler(_channelSignal);
   }
 
   Future<dynamic> _channelSignal(MethodCall call) async {
@@ -85,5 +86,20 @@ class NativeCommChannel {
       previousTemp5: previousTemp5,
     );
     return subData;
+  }
+  
+  /// Enable or disable debug logging in the native DeviceManager
+  /// 
+  /// When enabled, detailed logs about device processing will be printed to the console
+  Future<bool> setDebugLogging(bool enabled) async {
+    print("Setting debug logging to: $enabled");
+    
+    try {
+      final result = await _channel?.invokeMethod<bool>('setDebugLogging', {'enabled': enabled});
+      return result ?? false;
+    } catch (e) {
+      print("Error setting debug logging: $e");
+      return false;
+    }
   }
 }
