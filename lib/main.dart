@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:medsenser_gate/screens/debug_chart.dart';
-import 'package:medsenser_gate/screens/landing/landing_screen.dart';
-import 'package:medsenser_gate/screens/tabview_main.dart';
-import 'package:medsenser_gate/services/beam_processor.dart';
+import 'package:medsenser_gate/models/medsenser_device.dart';
+import 'package:medsenser_gate/screens/add_device.dart';
+import 'package:medsenser_gate/screens/device_detail.dart';
 import 'package:medsenser_gate/services/native_comm_channel.dart';
-import 'package:medsenser_gate/services/state_manager_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
@@ -16,10 +14,7 @@ void main() async {
 
   runApp(const MedsenserGateApp());
 
-  NativeCommChannel().registerChannel();
-  NativeCommChannel().advertisementReceived.stream.listen((receivedPackage) async {
-    await BeamProcessor().addNewBeamData(receivedPackage);
-  });
+  NativeCommChannel.instance.registerChannel();
 }
 
 Future<void> _checkPermissions() async {
@@ -96,7 +91,7 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
   void initState() {
     super.initState();
     _checkPermissions();
-    StateManagerService.state.initState();
+    //StateManagerService.state.initState();
   }
 
   // This widget is the root of your application.
@@ -104,6 +99,7 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
+        
         theme: ThemeData(
           fontFamily: 'Open Sans',
           primaryColor: Colors.blue,
@@ -111,27 +107,8 @@ class _MedsenserGateAppState extends State<MedsenserGateApp> {
           primarySwatch: Colors.blue,
           useMaterial3: true,
         ),
-        home: StreamBuilder<bool>(
-            stream: StateManagerService.state.needLandingScreenChanged.stream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.active) {
-                bool needsLandingPage = snapshot.data ?? true;
-                if (needsLandingPage) {
-                  //return DebugScreen(); // LandingScreen();
-                 //return LandingScreen();
-                  return DebugChart();
-     
-    
-                } else {
-                  return TabViewMainScreen();
-                }
-              } else {
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-            }));
+        home: DeviceDetailScreen(device: MedsenserDevice(deviceId: 1, lastSeen: DateTime.now(), convertedDeviceId: "1", batteryLevel: 100))
+        //home: AddDeviceScreen()
+        );
   }
 }

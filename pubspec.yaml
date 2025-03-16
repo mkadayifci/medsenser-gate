@@ -46,6 +46,10 @@ dependencies:
   gauge_indicator: ^0.4.3
   super_circle: ^1.0.0
   pulsator: ^1.0.0+2
+  gif: ^2.3.0
+  flutter_gradient_app_bar: ^0.3.1
+
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

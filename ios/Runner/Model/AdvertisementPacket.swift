@@ -67,12 +67,18 @@ class AdvertisementPacket {
                 previousTemp5: Int(data[8])
             )
             
-        default:
+        case packageTypeMEMS:
             guard data.count >= 7 else { return nil }
+            //TODO: Add MEMS package data
             subData = DefaultPackageData(
                 currentTemp: Int(data[5]),
                 battery: Int(data[6])
             )
+        default:
+            subData=  DefaultPackageData(
+                currentTemp: 0,
+                battery: 0)
+            
         }
         
         return AdvertisementPacket(deviceId: deviceId, packageType: packageType, subData: subData)

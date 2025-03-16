@@ -35,7 +35,7 @@ class DeviceManager {
             processHistoryPacket(packet, for: device)
         case AdvertisementPacket.packageTypeMEMS:
             LogManager.shared.debug("Processing MEMS packet", component: "DeviceManager")
-            processDefaultPacket(packet, for: device)
+            processMEMSPacket(packet, for: device)
         default:
             LogManager.shared.debug("Unknown package type: \(packet.packageType)", component: "DeviceManager")
             LogManager.shared.info("Unknown package type: \(packet.packageType)", component: "DeviceManager")
@@ -86,17 +86,40 @@ class DeviceManager {
         let time2 = now.addingTimeInterval(-3 * 60)
         let time3 = now.addingTimeInterval(-5 * 60)
         
-        // Create measurement nodes and add to device
-        let nodes = [
-            MeasurementNode(timestamp: now, temperatureValue: currentTemp),
-            MeasurementNode(timestamp: time1, temperatureValue: temp1),
-            MeasurementNode(timestamp: time2, temperatureValue: temp2),
-            MeasurementNode(timestamp: time3, temperatureValue: temp3)
-        ]
+
+        addMeasurementNode(MeasurementNode(timestamp: now, temperatureValue: currentTemp), to: device,isHistoricValue:false)
+        addMeasurementNode(MeasurementNode(timestamp: time1, temperatureValue: temp1), to: device,isHistoricValue:true)
+        addMeasurementNode(MeasurementNode(timestamp: time2, temperatureValue: temp2), to: device,isHistoricValue:true)
+        addMeasurementNode(MeasurementNode(timestamp: time3, temperatureValue: temp3), to: device,isHistoricValue:true)
+
+      
         
-        device.measurements.append(contentsOf: nodes)
     }
-    
+    private func addMeasurementNode(_ node: MeasurementNode, to device: MedsenserDevice, isHistoricValue: Bool) {
+        device.measurements.append(node)
+        if let controller = AppDelegate.flutterViewController {
+            LogManager.shared.info("Sending new measurement to Flutter channel", component: "DeviceManager")
+            let channel = FlutterMethodChannel(name: "ble_medsenser_channel", binaryMessenger: controller.binaryMessenger)
+            channel.invokeMethod("new_measurement", arguments: [
+                    "deviceId": device.deviceId,
+                    "timestamp": Int(node.timestamp.timeIntervalSince1970),
+                    "temperatureValue": node.temperatureValue,
+                    "isHistoricValue": isHistoricValue 
+                ])
+                node.isSyncedWithAppLayer = true
+          
+        }
+    }
+    private func sendMEMSActivatedEvent(for deviceId: Int) {
+        if let controller = AppDelegate.flutterViewController {
+            LogManager.shared.info("Sending MEMS activated event to Flutter channel", component: "DeviceManager")
+            let channel = FlutterMethodChannel(name: "ble_medsenser_channel", binaryMessenger: controller.binaryMessenger)
+            channel.invokeMethod("mems_activated", arguments: [
+                    "deviceId": deviceId
+                ])
+        }
+    }
+
     // Process History packet
     private func processHistoryPacket(_ packet: AdvertisementPacket, for device: MedsenserDevice) {
         guard let historyData = packet.subData as? HistoryPackageData else { 
@@ -129,15 +152,14 @@ class DeviceManager {
             let timestamp = now.addingTimeInterval(-Double(previousTempOrder) * Double(intervalMultiplier) * 60)
             let convertedTemp = MeasurementNode.convertParcelableTemperature(temp)
             let node = MeasurementNode(timestamp: timestamp, temperatureValue: convertedTemp)
-            device.measurements.append(node)
-        LogManager.shared.debug("Added temperature measurement: \(convertedTemp)°C at \(timestamp)", component: "DeviceManager")
+            addMeasurementNode(node, to: device, isHistoricValue: true)
         }
         
 
     }
     
     // Process Default packet
-    private func processDefaultPacket(_ packet: AdvertisementPacket, for device: MedsenserDevice) {
+    private func processMEMSPacket(_ packet: AdvertisementPacket, for device: MedsenserDevice) {
         guard let defaultData = packet.subData as? DefaultPackageData else { 
             LogManager.shared.debug("Failed to cast subData to DefaultPackageData", component: "DeviceManager")
             return 
@@ -145,12 +167,13 @@ class DeviceManager {
         
         // Update battery level
         device.batteryLevel = defaultData.battery
-        
+        sendMEMSActivatedEvent(for: device.deviceId)
         // Add current temperature measurement
         let convertedTemp = MeasurementNode.convertParcelableTemperature(defaultData.currentTemp)
         let node = MeasurementNode(timestamp: Date(), temperatureValue: convertedTemp)
-        device.measurements.append(node)
-        LogManager.shared.debug("Added current temperature measurement: \(convertedTemp)°C", component: "DeviceManager")
+            addMeasurementNode(node, to: device, isHistoricValue: false)
+    
+
     }
     
     // Get all devices
